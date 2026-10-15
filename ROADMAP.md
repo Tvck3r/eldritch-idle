@@ -1,6 +1,6 @@
 # Roadmap — The Summoning
 
-_Last updated: 2026-10-14_
+_Last updated: 2026-10-14 (Phase 1 complete)_
 
 ## Vision
 
@@ -30,41 +30,58 @@ show up in the scene, not just in a counter.
 - [x] Admin panel (`` ` `` or `?admin`), offline progress, autosave
 - [x] Repo, CI check, GitHub Pages deploy
 
+## Player feedback log
+
+Raw notes from playtesting, kept verbatim-ish so later phases can check against them.
+
+**2026-10-14, phone playtest #1**
+- "Doesn't really feel that native": no at-a-glance sanity, too much scrolling → Phase 2
+- Tooltips: a tap shows the tip, but a second tap just moved it → *fixed in Phase 1 (a second tap closes it); a full rethink is in Phase 2*
+- Omens should be easy to read without switching tabs → *feed added; a later note asked them to come from the top*
+
+**2026-10-14, phone playtest #2**
+- Omens should come in from the **top**: the thumb covers them at the bottom while chanting → *fixed in Phase 1 (they drop in under the pinned whispers bar)*
+- Want an **early-game upgrade to hold Chant** instead of tapping repeatedly → Phase 2
+- Tooltip second-tap bug (as above) → *fixed in Phase 1*
+
 ## Known issues and debt
 
-- **Mobile UX still doesn't feel native** (player feedback): you can't see sanity at a glance, tooltips are awkward on touch, there's too much scrolling.
-- **Photosensitivity:** the summon flash, the red madness flashes and the screen shake need a reduced-motion setting, and they should respect `prefers-reduced-motion`.
-- Sanity drains while offline, so returning players land at 0% with constant events. Pause the drain or set a floor while offline.
-- No save versioning or migrations yet (`load()` only does a shallow merge). Export/import is missing.
-- Scripts share globals in load order; there are no modules and no tests.
+- **Mobile UX still doesn't feel native** (see the feedback log) → Phase 2
 - Balance is untested past the first summon. The Favor formula and the cost curve are placeholders.
 - The Void robe is nearly invisible in the scene (needs an outline or rim light).
-- CRLF warnings on every commit (add `.gitattributes`).
+- The omen feed sits over the scene/header until you scroll (it's anchored under the pinned whispers bar). The Phase 2 app shell resolves this.
+- ~~Photosensitivity: flash, shake and glitch~~ → reduced-motion setting, defaults to the OS preference (Phase 1)
+- ~~Sanity drains while offline~~ → the mind rests while away (Phase 1)
+- ~~No save versioning / export~~ → versioned saves, migrations, export/import (Phase 1)
+- ~~Globals and load order, no tests~~ → ES modules + Vitest (Phase 1)
+- ~~CRLF warnings~~ → `.gitattributes`
 
 ---
 
-## Phase 1 — Foundation (1 session, recommended next)
+## Phase 1 — Foundation ✅ (2026-10-14)
 
-Do this before the UX overhaul so the UI only gets rewritten once.
+- [x] Vite + ES modules (still no framework); CI runs tests, builds, and deploys `dist/`
+- [x] Pure game logic split from the DOM: `core/` (no DOM, talks through an event bus) vs `ui/` vs `scene/`
+- [x] Vitest: 53 tests covering costs, max-affordable, production, favor, summoning and pacts, tick/catch-up, omens, sanity, saves, formatting
+- [x] Versioned save envelope + migration chain (v1 → v2); export/import string; corrupt saves are set aside instead of crashing
+- [x] Settings (stored separately from the save): reduced motion (defaults to the OS preference), number notation, omen feed on/off
+- [x] Offline fix: earning continues while away, but sanity holds and no madness fires; throttled background tabs use the same path
+- [x] `.gitattributes`; saves on tab hide (mobile browsers often skip `beforeunload`)
+- [x] Feedback quick fixes: omens from the top, second tap closes a tooltip
+- [x] Dev tooling: `?admin&save=<export>` loads a save from the URL; `?admin=0` keeps the panel closed
 
-- [ ] Vite + ES modules (keep the no-framework approach); CI runs `pnpm build` and deploys `dist/`
-- [ ] Split pure game logic from the DOM: `core/` (state, math, data) vs `ui/` (render, input) vs `scene/`
-- [ ] Vitest for the core math: costs, max-affordable, favor gain, offline progress, save migrations
-- [ ] Versioned save schema + migration chain; export/import save string; corrupt-save recovery
-- [ ] Settings model: reduced motion, number notation (suffix/scientific), feed on/off
-- [ ] `.gitattributes`, and fix offline sanity
+## Phase 2 — Native-feel mobile UX (next)
 
-## Phase 2 — Native-feel mobile UX
+Check the feedback log above before starting.
 
-Fold in the player's UX notes when they arrive.
-
+- [ ] **Hold to chant** — an early, cheap Rite ("Ceaseless Chant", ~500 whispers) that lets you hold the Chant button to chant ~8×/s. Teach it with a one-time hint. Make sure it plays well with haptics and the floaters.
 - [ ] **App shell, no page scroll:** fixed-viewport layout; the scene collapses to a strip when the player scrolls inside a panel
 - [ ] **Bottom tab bar** (Ritual / Followers / Rites / Vessel / Grimoire) with chant as a central action
 - [ ] **Always-visible HUD:** whispers, rate, sanity (ring or bar), Favor; everything you need at a glance
-- [ ] **Tap-to-inspect bottom sheet** instead of hover tooltips on touch; hover tooltips stay on desktop
+- [ ] **Tap-to-inspect bottom sheet** instead of hover tooltips on touch; hover tooltips stay on desktop. A tap on a row's info area inspects it; a tap on its buy area buys. No more long-press guessing.
 - [ ] **PWA:** manifest, icons, service worker, `display: standalone`, so it can be added to the home screen and open fullscreen
 - [ ] Haptics (Android `navigator.vibrate`), animated number count-ups, press states
-- [ ] Reduced-motion mode wired into the scene (no flash, no shake, gentler glitch)
+- [ ] Omen feed placement inside the app shell (top, under the HUD; never under the thumb)
 
 ## Phase 3 — Act I depth: "The Cult" (runs 1–5)
 
@@ -112,3 +129,4 @@ Fold in the player's UX notes when they arrive.
 ## Session log
 
 - **2026-10-14:** v0.1 built from zero in one session: core loop, prestige, sanity, scene, vessel, guide, mobile pass, deploy.
+- **2026-10-14 (later):** Phase 1 foundation: Vite/ES modules, 53 tests, versioned saves with export/import, settings, offline fix, playtest fixes.

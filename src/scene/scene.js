@@ -1,7 +1,13 @@
 // ============================================================
 // SCENE — pixel-art ritual drawn on a low-res canvas, scaled up crisp.
-// Reads `state`, `fx`, and helpers from game.js; never mutates game state.
+// Reads game state; never mutates it (only decays the transient fx signals).
 // ============================================================
+import { SUMMON_MS } from '../core/constants.js';
+import { state, fx } from '../core/state.js';
+import { settings } from '../core/settings.js';
+import { veilPct, wps } from '../core/economy.js';
+import { bake } from './sprites.js';
+import { drawVessel } from './vessel.js';
 
 const W = 320, H = 100;
 const HORIZON = 55;
@@ -52,7 +58,6 @@ const FIGURES = [
   { gen: 'cultist', robe: '#8a1f33', shade: '#5c1222', max: 8 },
 ];
 
-// bake() lives in vessel.js
 for (const f of FIGURES) {
   const colors = { o: f.robe, d: f.shade, x: '#050308', e: PAL.accent };
   f.frames = [bake(HOOD_DOWN, colors), bake(HOOD_UP, colors)];
@@ -115,7 +120,7 @@ function frame(now) {
   const summonP = fx.summonStart ? Math.min(1, (now - fx.summonStart) / SUMMON_MS) : 0;
 
   ctx.save();
-  if (summonP) ctx.translate((Math.random() - 0.5) * summonP * 6 | 0, (Math.random() - 0.5) * summonP * 4 | 0);
+  if (summonP && !settings.reducedMotion) ctx.translate((Math.random() - 0.5) * summonP * 6 | 0, (Math.random() - 0.5) * summonP * 4 | 0);
 
   // sky — reddens as the veil thins
   const sky = ctx.createLinearGradient(0, 0, 0, HORIZON);
@@ -258,7 +263,7 @@ function frame(now) {
 
   // low sanity — the picture tears: slices shift sideways, red bleeds in
   const madness = Math.max(0, (50 - state.sanity) / 50);
-  if (madness > 0) {
+  if (madness > 0 && !settings.reducedMotion) {
     for (let i = 0; i < 6; i++) {
       if (Math.random() > madness * 0.4) continue;
       const y = Math.random() * H | 0, h = 1 + (Math.random() * 6 | 0);
@@ -269,11 +274,14 @@ function frame(now) {
   }
 
   if (fx.flash > 0) {
-    ctx.fillStyle = `rgba(255,255,255,${fx.flash})`; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = `rgba(255,255,255,${settings.reducedMotion ? fx.flash * 0.3 : fx.flash})`; ctx.fillRect(0, 0, W, H);
     fx.flash = Math.max(0, fx.flash - dt * 0.8);
   }
   fx.chant = Math.max(0, fx.chant - dt * 3);
 
   requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+
+export function startScene() {
+  requestAnimationFrame(frame);
+}
