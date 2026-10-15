@@ -8,12 +8,14 @@
 import { state, freshState } from './state.js';
 
 export const SAVE_KEY = 'summoning-save-v1'; // kept for continuity; the real version lives inside
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 const EXPORT_PREFIX = 'SUMMONING:';
 
 const MIGRATIONS = {
   // v1 (first builds, 2026-10-14): bare state object, no envelope
   1: s => ({ ...s, lifetimeEarned: s.lifetimeEarned ?? s.totalEarned ?? 0 }),
+  // v2 (Phase 1–2): Acts I–III add many fields; normalize() fills them in. Nothing to convert.
+  2: s => s,
 };
 
 // Fill in anything missing from older saves and reject garbage
@@ -27,6 +29,8 @@ function normalize(s) {
     stats: { ...fresh.stats, ...s.stats },
     cosmetics: { ...fresh.cosmetics, ...s.cosmetics,
       equipped: { ...fresh.cosmetics.equipped, ...s.cosmetics?.equipped } },
+    alignment: { ...fresh.alignment, ...s.alignment },
+    auto: { ...fresh.auto, ...s.auto },
   };
   if (Object.values(out.owned).some(n => !Number.isFinite(n) || n < 0)) throw new Error('Follower counts are damaged');
   return out;

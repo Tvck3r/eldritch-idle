@@ -23,11 +23,13 @@ See [`ROADMAP.md`](ROADMAP.md) for where the game is headed and [`CLAUDE.md`](CL
 
 | Path | Purpose |
 |---|---|
-| `src/core/` | Game rules, content data, state, saves. No DOM; covered by tests |
-| `src/ui/` | Rendering, tooltips, Grimoire, wardrobe, settings, mobile tabs/feed |
-| `src/scene/` | Pixel-art ritual scene and the player's Vessel |
+| `src/core/` | Game rules, content data (three acts), state, saves. No DOM; covered by tests |
+| `src/ui/` | App shell, rendering, inspection sheet/tooltips, acts panels, audio, endings, Grimoire, settings |
+| `src/scene/` | Pixel-art ritual scene (every act and ending) and the player's Vessel |
+| `src/public/` | PWA manifest, icons, service worker |
 | `src/main.js` | Boot and game loop |
 | `src/admin.js` | Dev cheats |
+| `scripts/` | Icon generator; balance simulator (`node scripts/simulate.mjs active 20`) |
 
 ## Deploy
 

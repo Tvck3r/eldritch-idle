@@ -53,6 +53,16 @@ export function drawVessel(g, x, bottom, t, armsUp, look = state.cosmetics.equip
   const ox = Math.round(x - VESSEL_W / 2), oy = Math.round(bottom - VESSEL_H);
   const robeColors = { ...robe.colors, x: '#050308', e: GLOW, s: '#c9b8a8' };
 
+  // dark robes get a rim of light so they don't vanish into the night
+  if (robe.outline) {
+    const rim = Object.fromEntries(Object.keys(robeColors).map(k => [k, robe.outline]));
+    const body = cached(`body-rim:${robe.id}:${armsUp}`, () => bake(robeRows(armsUp), rim));
+    const hood = cached(`hood-rim:${robe.id}`, () => bake(HOOD, rim));
+    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1]]) {
+      g.drawImage(body, ox + dx, oy + dy);
+      g.drawImage(hood, ox + HEAD_X + dx, oy + HEAD_Y + dy);
+    }
+  }
   g.drawImage(cached(`body:${robe.id}:${armsUp}`, () => bake(robeRows(armsUp), robeColors)), ox, oy);
   g.drawImage(cached(`hood:${robe.id}`, () => bake(HOOD, robeColors)), ox + HEAD_X, oy + HEAD_Y);
   if (mask.rows.length) g.drawImage(cached(`mask:${mask.id}`, () => bake(mask.rows, mask.colors)), ox + MASK_X, oy + MASK_Y);

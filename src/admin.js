@@ -4,10 +4,13 @@
 // save straight from the URL (handy for screenshots and bug reports).
 // Remove the import in main.js to strip it.
 // ============================================================
-import { VEIL_GOAL } from './core/constants.js';
+import { VEIL_GOAL, AWAKEN_FAVOR, ACT3_AWAKENINGS } from './core/constants.js';
 import { GENERATORS, UPGRADES, PACTS } from './core/content.js';
+import { SEALS } from './core/content-acts.js';
 import { state, setState, freshState, runtime } from './core/state.js';
-import { earn, beginSummon, madnessEvent, freshRun } from './core/economy.js';
+import { earn, madnessEvent, spawnApparition, askChoice } from './core/economy.js';
+import { beginSummon, freshRun, awaken } from './core/prestige.js';
+import { emit } from './core/events.js';
 import { unlockAllCosmetics } from './core/cosmetics.js';
 import { importSave, SAVE_KEY } from './core/save.js';
 import { storage } from './ui/dom.js';
@@ -45,7 +48,22 @@ const actions = {
   cosmetics: () => unlockAllCosmetics(),
   intro: () => showIntro(),
   wipe: () => { storage.removeItem(SAVE_KEY); setState(freshState()); location.reload(); },
+  // Acts
+  apparition: () => spawnApparition(),
+  question: () => { if (!state.pendingChoice) askChoice() || log('Every question has been asked.'); },
+  awaken: () => { state.favorEarned = Math.max(state.favorEarned, AWAKEN_FAVOR); awaken(); },
+  signs: () => { state.elderSigns += 10; state.elderSignsTotal += 10; },
+  ichor: () => { state.ichor += 100; },
+  act3: () => { state.awakenings = Math.max(state.awakenings, ACT3_AWAKENINGS); },
+  seal: () => { const s = SEALS.find(s => !state.seals.includes(s.id) && s.id !== 'name'); if (s) state.seals.push(s.id); },
+  finale: () => {
+    state.awakenings = Math.max(state.awakenings, ACT3_AWAKENINGS);
+    state.seals = SEALS.map(s => s.id);
+    state.finale = true;
+    emit('finale');
+  },
 };
+const log = msg => emit('log', msg);
 
 export function initAdmin() {
   const panel = document.createElement('div');
@@ -66,6 +84,12 @@ export function initAdmin() {
     <div class="grid">
       <button data-a="preview">Summon anim</button><button data-a="event">Madness event</button><button data-a="blank">Fresh run</button>
       <button data-a="cosmetics">All vestments</button><button data-a="intro">Title screen</button><button data-a="wipe">Wipe save</button>
+    </div>
+    <label>Acts</label>
+    <div class="grid">
+      <button data-a="apparition">Apparition</button><button data-a="question">Question</button><button data-a="awaken">Awaken</button>
+      <button data-a="signs">+10 Signs</button><button data-a="ichor">+100 Ichor</button><button data-a="act3">Act III</button>
+      <button data-a="seal">Break a seal</button><button data-a="finale">Finale</button>
     </div>
     <label>Speed</label>
     <div class="grid">
