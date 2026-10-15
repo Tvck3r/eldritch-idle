@@ -6,28 +6,30 @@ An incremental game about waking something that should stay asleep.
 
 ## Development
 
-No build step: the game is plain HTML/CSS/JS in `src/`.
+Vanilla JavaScript (ES modules) built with Vite. Game logic is tested with Vitest.
 
 ```sh
 pnpm install
-pnpm dev      # serves src/ at http://localhost:5173
-pnpm check    # syntax-checks scripts and verifies index.html references
+pnpm dev       # http://localhost:5173 (also reachable from a phone on your Wi-Fi)
+pnpm test      # core logic tests
+pnpm build     # production build → dist/
 ```
 
-Press <kbd>`</kbd> in-game (or add `?admin` to the URL) for the admin/cheat panel.
+In-game, press <kbd>`</kbd> (or add `?admin` to the URL) for the admin/cheat panel.
+
+See [`ROADMAP.md`](ROADMAP.md) for where the game is headed and [`CLAUDE.md`](CLAUDE.md) for architecture notes.
 
 ## Layout
 
-| File | Purpose |
+| Path | Purpose |
 |---|---|
-| `src/game.js` | Data (followers, rites, pacts, omens), state, core logic, render |
-| `src/vessel.js` | Player avatar: cosmetics data, unlocks, sprite compositing |
-| `src/scene.js` | Pixel-art ritual scene on a low-res canvas |
-| `src/ui.js` | Tooltips, title screen, Grimoire, wardrobe |
-| `src/main.js` | Boot: event wiring and game loop (loads last) |
-| `src/admin.js` | Dev cheats — delete to remove |
+| `src/core/` | Game rules, content data, state, saves. No DOM; covered by tests |
+| `src/ui/` | Rendering, tooltips, Grimoire, wardrobe, settings, mobile tabs/feed |
+| `src/scene/` | Pixel-art ritual scene and the player's Vessel |
+| `src/main.js` | Boot and game loop |
+| `src/admin.js` | Dev cheats |
 
 ## Deploy
 
-Every push to `main` runs `pnpm check`, then publishes `src/` to GitHub Pages
-via `.github/workflows/deploy.yml`. Pull requests run the check only.
+Every push to `main` runs the tests, builds, and publishes `dist/` to GitHub Pages via
+`.github/workflows/deploy.yml`. Pull requests run tests and build only.

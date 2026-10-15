@@ -1,9 +1,53 @@
 // ============================================================
-// ADMIN — dev cheats. Toggle with the ` (backtick) key, or open
-// the page with ?admin in the URL. Delete this file to remove it.
+// ADMIN — dev cheats. Toggle with the ` (backtick) key, or open the
+// page with ?admin in the URL. ?admin&save=<exported save> loads a
+// save straight from the URL (handy for screenshots and bug reports).
+// Remove the import in main.js to strip it.
 // ============================================================
+import { VEIL_GOAL } from './core/constants.js';
+import { GENERATORS, UPGRADES, PACTS } from './core/content.js';
+import { state, setState, freshState, runtime } from './core/state.js';
+import { earn, beginSummon, madnessEvent, freshRun } from './core/economy.js';
+import { unlockAllCosmetics } from './core/cosmetics.js';
+import { importSave, SAVE_KEY } from './core/save.js';
+import { storage } from './ui/dom.js';
+import { showIntro } from './ui/intro.js';
+import { rebuildLists } from './ui/render.js';
 
-(() => {
+const params = new URLSearchParams(location.search);
+
+// Call before the first render
+export function applyDebugSave() {
+  if (!params.has('admin') || !params.has('save')) return;
+  try { setState(importSave(params.get('save'))); } catch (e) { console.warn('Bad ?save param:', e.message); }
+}
+
+const actions = {
+  w3: () => earn(1e3),
+  w6: () => earn(1e6),
+  w9: () => earn(1e9),
+  gens: () => GENERATORS.forEach(g => state.owned[g.id] += 10),
+  rites: () => { state.upgrades = UPGRADES.map(u => u.id); },
+  veil: () => earn(Math.max(0, VEIL_GOAL - state.totalEarned)),
+  favor: () => { state.favor += 10; },
+  pacts: () => { state.pacts = PACTS.map(p => p.id); },
+  max: () => {
+    GENERATORS.forEach(g => state.owned[g.id] = Math.max(state.owned[g.id], 30));
+    state.upgrades = UPGRADES.map(u => u.id);
+    state.pacts = PACTS.map(p => p.id);
+    state.summonings = Math.max(state.summonings, 6);  // biggest Watcher
+    state.favor += 20;
+    earn(Math.max(0, VEIL_GOAL * 4 - state.totalEarned));
+  },
+  preview: () => beginSummon({ preview: true }),
+  event: () => madnessEvent(),
+  blank: () => freshRun(),
+  cosmetics: () => unlockAllCosmetics(),
+  intro: () => showIntro(),
+  wipe: () => { storage.removeItem(SAVE_KEY); setState(freshState()); location.reload(); },
+};
+
+export function initAdmin() {
   const panel = document.createElement('div');
   panel.id = 'admin';
   panel.style.display = 'none';
@@ -33,37 +77,8 @@
   document.body.appendChild(panel);
 
   const toggle = () => { panel.style.display = panel.style.display === 'none' ? '' : 'none'; };
-  if (new URLSearchParams(location.search).has('admin')) toggle();
+  if (params.has('admin') && params.get('admin') !== '0') toggle(); // ?admin=0: cheats loaded, panel closed
   window.addEventListener('keydown', e => { if (e.key === '`') toggle(); });
-
-  const actions = {
-    w3: () => earn(1e3),
-    w6: () => earn(1e6),
-    w9: () => earn(1e9),
-    gens: () => GENERATORS.forEach(g => state.owned[g.id] += 10),
-    rites: () => { state.upgrades = UPGRADES.map(u => u.id); },
-    veil: () => earn(Math.max(0, VEIL_GOAL - state.totalEarned)),
-    favor: () => { state.favor += 10; },
-    pacts: () => { state.pacts = PACTS.map(p => p.id); },
-    max: () => {
-      GENERATORS.forEach(g => state.owned[g.id] = Math.max(state.owned[g.id], 30));
-      state.upgrades = UPGRADES.map(u => u.id);
-      state.pacts = PACTS.map(p => p.id);
-      state.summonings = Math.max(state.summonings, 6);  // biggest Watcher
-      state.favor += 20;
-      earn(Math.max(0, VEIL_GOAL * 4 - state.totalEarned));
-    },
-    preview: () => startSummon(true),
-    event: () => madnessEvent(),
-    blank: () => { state = { ...freshState(), ...pick(state, PERSIST) }; },
-    cosmetics: () => {
-      for (const slot in COSMETICS) for (const o of COSMETICS[slot])
-        if (!o.free && !isUnlocked(slot, o.id)) state.cosmetics.unlocked.push(`${slot}:${o.id}`);
-      state.cosmetics.unseen = true;
-    },
-    intro: () => showIntro(),
-    wipe: () => { localStorage.removeItem(SAVE_KEY); state = freshState(); location.reload(); },
-  };
 
   panel.addEventListener('click', e => {
     if (e.target.closest('[data-close]')) return toggle();
@@ -71,7 +86,7 @@
     if (a) { actions[a.dataset.a](); rebuildLists(); }
     const s = e.target.closest('[data-speed]');
     if (s) {
-      timeScale = Number(s.dataset.speed);
+      runtime.timeScale = Number(s.dataset.speed);
       panel.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', b === s));
     }
   });
@@ -82,4 +97,4 @@
     if (document.activeElement !== slider) slider.value = state.sanity;
     panel.querySelector('#admin-san').textContent = Math.floor(state.sanity);
   }, 200);
-})();
+}

@@ -244,9 +244,8 @@ button { user-select: none; -webkit-user-select: none; -webkit-touch-callout: no
   /* omens drift in above the chant bar, then fall away */
   #omen-feed {
     display: flex; flex-direction: column; gap: 6px; position: fixed; z-index: 19; pointer-events: none;
-    left: 16px; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom));
+    left: 16px; right: 16px; top: calc(var(--res-h, 72px) + 8px);
   }
-  body.can-summon #omen-feed { bottom: calc(150px + env(safe-area-inset-bottom)); }
   .omen-toast {
     padding: 8px 12px; border-left: 2px solid var(--accent); border-radius: 4px;
     background: #0d0b14; box-shadow: 0 4px 16px #000c;
@@ -276,3 +275,27 @@ button { user-select: none; -webkit-user-select: none; -webkit-touch-callout: no
   #admin { left: 8px; right: 8px; top: 8px; bottom: auto; width: auto; max-height: 60vh; overflow-y: auto; }
   #tooltip { max-width: calc(100vw - 16px); }
 }
+
+/* ============================================================
+   SETTINGS & REDUCED MOTION
+   ============================================================ */
+
+.settings h3 { margin-top: 18px !important; font-size: 0.85rem; }
+.settings h3:first-of-type { margin-top: 0 !important; }
+.setting { display: flex; gap: 12px; align-items: center; padding: 8px 0; cursor: pointer; }
+.setting > span { display: flex; flex-direction: column; }
+.setting b { font-weight: normal; }
+.setting input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); flex-shrink: 0; }
+.setting select, .settings textarea {
+  font-family: ui-monospace, Consolas, monospace; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px;
+}
+.settings textarea { width: 100%; font-size: 0.75rem; resize: vertical; margin-top: 6px; }
+.row-buttons { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+
+body.reduced-motion #whispers,
+body.reduced-motion #log,
+body.reduced-motion #summon { animation: none !important; }
+body.reduced-motion .omen-toast,
+body.reduced-motion .omen-toast.out { animation-duration: 0.01s; }
+@media (prefers-reduced-motion: reduce) { #chant { transition: none; } }
