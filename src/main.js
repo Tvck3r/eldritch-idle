@@ -7,8 +7,9 @@ import { loadSettings } from './core/settings.js';
 import { loadGame } from './core/save.js';
 import { on, emit } from './core/events.js';
 import {
-  buyGenerator, buyUpgrade, buyPact, steadyMind, setBuyMode, tick, catchUp, canSummon, beginSummon, favorGain, wps,
+  buyGenerator, buyUpgrade, buyPact, steadyMind, setBuyMode, tick, catchUp, favorGain, wps,
 } from './core/economy.js';
+import { canSummon, beginSummon } from './core/prestige.js';
 import { fmt } from './core/format.js';
 import { $, storage, save, haptic } from './ui/dom.js';
 import { initLog, buildGenerators, rebuildLists, render } from './ui/render.js';
@@ -20,6 +21,10 @@ import { initVesselPanel } from './ui/vessel-panel.js';
 import { initShell } from './ui/shell.js';
 import { initChant } from './ui/chant.js';
 import { initSettings } from './ui/settings-panel.js';
+import { initActs, renderActs } from './ui/acts.js';
+import { initApparitions } from './ui/apparitions.js';
+import { initAudio, buySound, summonSound } from './ui/audio.js';
+import { initEnding } from './ui/ending.js';
 import { startScene } from './scene/scene.js';
 import { initAdmin, applyDebugSave } from './admin.js';
 
@@ -39,6 +44,10 @@ initShell();
 initChant();
 initVesselPanel();
 initSettings();
+initActs();
+initApparitions();
+initAudio();
+initEnding();
 initIntro();
 initAdmin();
 buildGenerators();
@@ -47,14 +56,14 @@ on('state-replaced', rebuildLists);
 on('summoned', save);
 
 // A purchase succeeded → a little buzz
-const bought = ok => { if (ok) haptic(12); };
+const bought = ok => { if (ok) { haptic(12); buySound(); } };
 
 $('summon').addEventListener('click', () => {
   if (!canSummon()) return;
   const gain = favorGain();
   const ok = confirm(`Summon It? All whispers, followers, and rites will be lost.\n` +
-    `You will gain ${gain} Eldritch Favor (+${Math.round(gain * FAVOR_BONUS * 100)}% to everything, forever).`);
-  if (ok && beginSummon()) haptic([30, 60, 30, 60, 120]);
+    `You will gain ${fmt(gain)} Eldritch Favor (+${fmt(gain * FAVOR_BONUS * 100)}% to everything, forever).`);
+  if (ok && beginSummon()) { haptic([30, 60, 30, 60, 120]); summonSound(); }
 });
 $('steady').addEventListener('click', () => bought(steadyMind()));
 $('buy-mode').addEventListener('click', e => {
@@ -94,6 +103,7 @@ function loop() {
   // Browsers throttle background tabs to ~1 tick/minute; treat long gaps as time away
   if (real > CATCH_UP_THRESHOLD) catchUp(dt); else tick(dt);
   render();
+  renderActs();
 }
 
 loop();

@@ -8,6 +8,8 @@ export const settings = {
   notation: 'suffix',     // 'suffix' (1.23M) or 'scientific' (1.23e6)
   omenFeed: true,         // mobile: omens drift in over the game
   haptics: true,          // vibrate on chant/buy (Android; iOS ignores it)
+  sound: true,            // synthesized drone, chants and stings
+  volume: 0.6,
 };
 
 export function loadSettings(storage, defaults = {}) {

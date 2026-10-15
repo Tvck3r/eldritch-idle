@@ -9,6 +9,7 @@ import { on, emit } from '../core/events.js';
 import { chant, clickValue, canHoldChant } from '../core/economy.js';
 import { fmt } from '../core/format.js';
 import { $, haptic } from './dom.js';
+import { chantSound } from './audio.js';
 
 const HOLD_DELAY_MS = 260;   // a press longer than this starts the repeat
 
@@ -25,9 +26,10 @@ function floater(x, y) {
 }
 
 function doChant(x, y) {
-  chant();
+  if (!chant()) return;
   floater(x, y);
   haptic(6);
+  chantSound();
 }
 
 // One-time teaching hint: pulse the button until the player first holds it

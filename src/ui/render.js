@@ -5,7 +5,7 @@ import { VEIL_GOAL, SANITY_REGEN, MADNESS_THRESHOLD } from '../core/constants.js
 import { GENERATORS, UPGRADES, PACTS } from '../core/content.js';
 import { state, fx, hasPact } from '../core/state.js';
 import {
-  modifiers, wps, clickValue, genRate, genCost, buyAmount, isRevealed,
+  modifiers, wps, clickValue, genRate, genCost, buyAmount, isRevealed, isBarred, nextMilestone,
   sanityDrain, madnessMult, favorMult, favorGain, veilPct,
 } from '../core/economy.js';
 import { on } from '../core/events.js';
@@ -73,7 +73,7 @@ export function render() {
   $('whispers').textContent = fmt(countUp(state.whispers));
   $('wps').textContent = `${fmt(wps(m))}/s  ·  ${fmt(clickValue(m))}/chant`;
   $('favor').hidden = state.favor <= 0;
-  $('favor').textContent = `✦ ${state.favor}  ×${favorMult().toFixed(1)}`;
+  $('favor').textContent = `✦ ${fmt(state.favor)}  ×${fmt(favorMult())}`;
 
   // Sanity: ring in the HUD, full card in the Ritual panel
   const drain = sanityDrain() - SANITY_REGEN;
@@ -100,11 +100,13 @@ export function render() {
     el.hidden = !isRevealed(g);
     el.style.display = el.hidden ? 'none' : '';
     // a class, not `disabled`: disabled buttons swallow the events inspection needs
-    el.classList.toggle('cant', state.whispers < cost);
-    el.querySelector('.count').textContent = state.owned[g.id] ? ` · ${state.owned[g.id]}` : '';
-    el.querySelector('.qty').textContent = `Recruit${n > 1 ? ' ×' + n : ''}`;
-    el.querySelector('.cost').textContent = fmt(cost);
-    el.querySelector('.rate').textContent = state.owned[g.id] ? `${fmt(genRate(g, m))} / sec total` : '';
+    const barred = isBarred(g.id, m), owned = state.owned[g.id], next = nextMilestone(owned);
+    el.classList.toggle('cant', barred || state.whispers < cost);
+    el.querySelector('.count').textContent = owned ? ` · ${owned}` : '';
+    el.querySelector('.qty').textContent = barred ? 'Barred' : `Recruit${n > 1 ? ' ×' + n : ''}`;
+    el.querySelector('.cost').textContent = barred ? '—' : fmt(cost);
+    el.querySelector('.rate').textContent = barred ? 'Your faith forbids it.'
+      : owned ? `${fmt(genRate(g, m))} / sec total${next ? `  ·  ×${m.milestoneBase} at ${next}` : ''}` : '';
   }
 
   // Rites
@@ -113,7 +115,7 @@ export function render() {
     u => rowHtml({ attr: `data-upg="${u.id}"`, tip: `upg:${u.id}`, name: u.name, desc: u.desc, price: fmt(u.cost) }),
     'No rites are known to you yet.');
   document.querySelectorAll('[data-upg]').forEach(el => {
-    el.classList.toggle('cant', state.whispers < UPGRADES.find(u => u.id === el.dataset.upg).cost);
+    el.classList.toggle('cant', m.noRites || state.whispers < UPGRADES.find(u => u.id === el.dataset.upg).cost);
   });
 
   // Pacts — section appears after first summoning
@@ -131,7 +133,7 @@ export function render() {
   const summonable = gain > 0 && !fx.summonStart;
   $('summon').style.display = summonable ? 'block' : 'none';
   document.body.classList.toggle('can-summon', summonable);
-  $('summon').textContent = `Summon It  ·  +${gain} Favor`;
+  $('summon').textContent = `Summon It  ·  +${fmt(gain)} Favor`;
 
   const pct = veilPct();
   $('veil-fill').style.width = (pct * 100).toFixed(1) + '%';

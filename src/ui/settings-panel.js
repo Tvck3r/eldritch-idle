@@ -4,7 +4,7 @@
 import { settings, setSetting } from '../core/settings.js';
 import { on } from '../core/events.js';
 import { setState } from '../core/state.js';
-import { resetAll } from '../core/economy.js';
+import { resetAll } from '../core/prestige.js';
 import { exportSave, importSave } from '../core/save.js';
 import { $, storage, save } from './dom.js';
 import { openModal, closeModal } from './modal.js';
@@ -23,6 +23,11 @@ export function openSettings() {
       <h3>Display</h3>
       ${toggle('reducedMotion', 'Reduce motion', 'No flashes, screen shake or glitching.')}
       ${toggle('omenFeed', 'Omen feed', 'On phones, omens drift in over the game.')}
+      ${toggle('sound', 'Sound', 'A drone that deepens as the veil thins, and voices when you chant.')}
+      <label class="setting">
+        <input type="range" min="0" max="1" step="0.05" data-setting="volume" value="${settings.volume}">
+        <span><b>Volume</b></span>
+      </label>
       ${toggle('haptics', 'Vibration', 'A small buzz when you chant or buy (Android).')}
       <label class="setting">
         <select data-setting="notation">
@@ -46,9 +51,9 @@ export function openSettings() {
   save();
   $('save-export').value = exportSave();
 
-  $('modal-body').onchange = e => {
+  $('modal-body').oninput = $('modal-body').onchange = e => {
     const el = e.target.closest('[data-setting]'); if (!el) return;
-    setSetting(el.dataset.setting, el.type === 'checkbox' ? el.checked : el.value, storage);
+    setSetting(el.dataset.setting, el.type === 'checkbox' ? el.checked : el.type === 'range' ? Number(el.value) : el.value, storage);
   };
 
   $('copy-save').onclick = async () => {

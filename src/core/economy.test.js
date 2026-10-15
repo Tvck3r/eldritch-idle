@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { COST_GROWTH, VEIL_GOAL, SUMMON_MS, SANITY_REGEN, STEADY_AMOUNT } from './constants.js';
+import { COST_GROWTH, VEIL_GOAL, SUMMON_MS, SANITY_REGEN, STEADY_AMOUNT, DRAIN_SOFTCAP } from './constants.js';
 import { GENERATORS, OMENS } from './content.js';
 import { state, setState, freshState, fx } from './state.js';
 import { on } from './events.js';
 import * as eco from './economy.js';
+import * as pre from './prestige.js';
 
 const [acolyte, cultist, circle] = GENERATORS;
 
@@ -97,8 +98,8 @@ describe('favor', () => {
   it.each([
     [VEIL_GOAL - 1, 0],
     [VEIL_GOAL, 10],
-    [VEIL_GOAL * 4, 20],
-    [VEIL_GOAL * 9, 30],
+    [VEIL_GOAL * 8, 20],
+    [VEIL_GOAL * 27, 30],
   ])('earning %d this run gives %d Favor', (earned, favor) => {
     expect(eco.favorGain(earned)).toBe(favor);
   });
@@ -113,8 +114,8 @@ describe('favor', () => {
 
 describe('summoning', () => {
   const tornVeil = () => {
-    state.totalEarned = VEIL_GOAL * 4;
-    state.lifetimeEarned = VEIL_GOAL * 5;
+    state.totalEarned = VEIL_GOAL * 8;
+    state.lifetimeEarned = VEIL_GOAL * 9;
     state.whispers = 1e6;
     state.owned.cultist = 40;
     state.upgrades.push('robes');
@@ -126,14 +127,14 @@ describe('summoning', () => {
 
   it('resets the run but keeps lasting progress', () => {
     tornVeil();
-    eco.performSummon();
+    pre.performSummon();
     expect(state.whispers).toBe(0);
     expect(state.totalEarned).toBe(0);
     expect(state.owned.cultist).toBe(0);
     expect(state.upgrades).toEqual([]);
     expect(state.favor).toBe(3 + 20);
     expect(state.summonings).toBe(2);
-    expect(state.lifetimeEarned).toBe(VEIL_GOAL * 5);
+    expect(state.lifetimeEarned).toBe(VEIL_GOAL * 9);
     expect(state.stats.chants).toBe(99);
     expect(state.sanity).toBe(100);
   });
@@ -141,7 +142,7 @@ describe('summoning', () => {
   it('applies starting-follower pacts', () => {
     tornVeil();
     state.pacts.push('congregation');
-    eco.performSummon();
+    pre.performSummon();
     expect(state.owned.acolyte).toBe(10);
     expect(state.owned.cultist).toBe(10);
   });
@@ -149,21 +150,21 @@ describe('summoning', () => {
   it('keeps rites with Rites Remembered', () => {
     tornVeil();
     state.pacts.push('remembered');
-    eco.performSummon();
+    pre.performSummon();
     expect(state.upgrades).toEqual(['robes']);
   });
 
   it('refuses before the veil tears', () => {
     state.totalEarned = VEIL_GOAL / 2;
-    expect(eco.canSummon()).toBe(false);
-    expect(eco.beginSummon()).toBe(false);
+    expect(pre.canSummon()).toBe(false);
+    expect(pre.beginSummon()).toBe(false);
   });
 
   it('waits for the animation before resetting', () => {
     vi.useFakeTimers();
     tornVeil();
-    expect(eco.beginSummon()).toBe(true);
-    expect(eco.beginSummon()).toBe(false); // already underway
+    expect(pre.beginSummon()).toBe(true);
+    expect(pre.beginSummon()).toBe(false); // already underway
     expect(state.summonings).toBe(1);
     vi.advanceTimersByTime(SUMMON_MS);
     expect(state.summonings).toBe(2);
@@ -174,7 +175,7 @@ describe('summoning', () => {
   it('preview plays the animation without resetting', () => {
     vi.useFakeTimers();
     state.owned.cultist = 5;
-    expect(eco.beginSummon({ preview: true })).toBe(true);
+    expect(pre.beginSummon({ preview: true })).toBe(true);
     vi.advanceTimersByTime(SUMMON_MS);
     expect(state.owned.cultist).toBe(5);
     vi.useRealTimers();
@@ -184,13 +185,13 @@ describe('summoning', () => {
 describe('time', () => {
   it('tick earns production and moves sanity', () => {
     state.owned.cultist = 10;
-    state.owned.city = 10; // drains 5/s
+    state.owned.city = 10; // 5/s raw, softened
     state.sanity = 50;
     vi.spyOn(Math, 'random').mockReturnValue(0.99); // no madness
     const rate = eco.wps(); // production is computed before sanity moves
     eco.tick(1);
     expect(state.totalEarned).toBeCloseTo(rate);
-    expect(state.sanity).toBeCloseTo(50 + SANITY_REGEN - 5);
+    expect(state.sanity).toBeCloseTo(50 + SANITY_REGEN - DRAIN_SOFTCAP * 5 / (DRAIN_SOFTCAP + 5));
   });
 
   it('catchUp earns but the mind rests: no sanity change, no madness', () => {
@@ -208,8 +209,8 @@ describe('time', () => {
     const lines = [];
     const off = on('log', msg => lines.push(msg));
     state.totalEarned = 1500;
-    eco.checkOmens();
-    eco.checkOmens();
+    eco.checkProgress();
+    eco.checkProgress();
     off();
     expect(lines).toEqual(OMENS.slice(0, 3).map(([, text]) => text));
     expect(state.omensSeen).toBe(3);
@@ -244,7 +245,13 @@ describe('sanity', () => {
     const full = eco.sanityDrain();
     state.pacts.push('steadfast');
     expect(eco.sanityDrain()).toBeCloseTo(full / 2);
-    expect(full).toBeCloseTo(10 * circle.drain);
+    expect(eco.rawDrain()).toBeCloseTo(10 * circle.drain);
+  });
+
+  it('drain eases toward a ceiling instead of growing forever', () => {
+    state.owned.moon = 1000;
+    expect(eco.sanityDrain()).toBeLessThan(DRAIN_SOFTCAP);
+    expect(eco.sanityDrain()).toBeGreaterThan(DRAIN_SOFTCAP * 0.99);
   });
 });
 

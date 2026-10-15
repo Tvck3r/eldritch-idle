@@ -6,7 +6,10 @@ import { state } from '../core/state.js';
 import { on } from '../core/events.js';
 import { COSMETICS, SLOT_NAMES, isUnlocked, equip } from '../core/cosmetics.js';
 import { drawVessel } from '../scene/vessel.js';
+import { REVELATION_BONUS } from '../core/constants.js';
+import { REVELATIONS } from '../core/content-acts.js';
 import { $, haptic } from './dom.js';
+import { registerTip } from './inspect.js';
 
 let previewOn = false, lastKey = '';
 
@@ -22,6 +25,21 @@ export function drawSlots(force = false) {
       return `<button class="small ${worn ? 'active' : ''} ${open ? '' : 'sealed'}" data-equip="${slot}:${o.id}" data-tip="cos:${slot}:${o.id}">
         ${open ? o.name : '???'}</button>`;
     }).join('')}</div>`).join('');
+}
+
+// Revelations (achievements): a grid of tiles; sealed ones show only their hint
+let revKey = '';
+function drawRevelations(force = false) {
+  const key = state.revelations.join();
+  if (!force && key === revKey) return;
+  revKey = key;
+  const n = state.revelations.length;
+  $('vessel-extra').innerHTML = `
+    <h2>Revelations <span class="sub">${n} / ${REVELATIONS.length} · +${Math.round(n * REVELATION_BONUS * 100)}% to everything</span></h2>
+    <div class="revelations">${REVELATIONS.map(r => {
+      const got = state.revelations.includes(r.id);
+      return `<div class="rev ${got ? 'got' : ''}" data-tip="rev:${r.id}">${got ? r.name : '?'}</div>`;
+    }).join('')}</div>`;
 }
 
 function startPreview() {
@@ -50,7 +68,13 @@ export function initVesselPanel() {
     if (tab === 'vessel') { state.cosmetics.unseen = false; drawSlots(true); startPreview(); }
     else previewOn = false;
   });
-  on('state-replaced', () => drawSlots(true));
+  on('state-replaced', () => { drawSlots(true); drawRevelations(true); });
+  on('revelation', () => drawRevelations());
+  registerTip('rev', id => {
+    const r = REVELATIONS.find(r => r.id === id), got = state.revelations.includes(id);
+    return `<b>${got ? r.name : '???'}</b><p>${r.desc}</p><p class="sub">${got ? `Revealed. +${REVELATION_BONUS * 100}% to everything.` : 'Not yet revealed.'}</p>`;
+  });
   setInterval(() => { if (previewOn) drawSlots(); }, 1000);
   drawSlots(true);
+  drawRevelations(true);
 }

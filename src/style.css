@@ -69,10 +69,11 @@ button { user-select: none; -webkit-user-select: none; -webkit-touch-callout: no
 #hud-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 #resource { min-width: 0; }
 #whispers { font-size: 1.75rem; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
-#wps { font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#hud-sub { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+#wps { flex: 1; min-width: 0; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #hud-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .chip {
-  padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; white-space: nowrap;
+  flex-shrink: 0; padding: 1px 8px; border-radius: 12px; font-size: 0.75rem; white-space: nowrap;
   border: 1px solid #4a3f22; color: var(--gold); background: #15120a;
 }
 #signs { border-color: #3c2a52; color: var(--ichor); background: #140c1c; }
@@ -414,3 +415,88 @@ body.reduced-motion #sheet-card,
 body.reduced-motion #sheet-backdrop,
 body.reduced-motion .modal-card { animation-duration: 0.01s; }
 body.reduced-motion #scene-wrap { transition: none; }
+
+/* ============================================================
+   ACTS — apparitions, buffs, questions, revelations, act II/III cards
+   ============================================================ */
+
+/* invisible, generous tap target over an apparition the scene draws */
+.apparition {
+  position: absolute; width: 52px; height: 52px; transform: translate(-50%, -50%);
+  pointer-events: auto; background: transparent; border: 0; border-radius: 50%; padding: 0;
+}
+.apparition:active { transform: translate(-50%, -50%) scale(0.9); }
+#buff-strip { position: absolute; left: 8px; bottom: 6px; display: flex; gap: 4px; flex-wrap: wrap; pointer-events: none; }
+.buff {
+  pointer-events: auto; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;
+  background: #0d0b14d9; border: 1px solid var(--accent); color: var(--accent);
+}
+.buff b { font-weight: normal; color: var(--text); }
+#app.collapsed #buff-strip { bottom: 4px; }
+
+#choice-card { border-color: var(--blood); box-shadow: 0 0 18px #b3263e33; }
+.choice-text { font-style: italic; font-size: 1rem; margin: 4px 0 10px; }
+.choice-options { display: flex; flex-direction: column; gap: 6px; }
+.choice-options button { padding: 12px; font-size: 0.95rem; text-align: left; }
+
+.revelations { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.rev {
+  min-height: 44px; padding: 6px; border-radius: 8px; border: 1px dashed var(--border);
+  font-size: 0.72rem; color: var(--dim); display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.rev.got { border: 1px solid #4a3f22; color: var(--gold); background: #15120a; }
+
+button.wide { display: block; width: 100%; padding: 12px; margin-top: 8px; font-size: 0.95rem; }
+.act2 { border-color: #3c2a52; }
+.act2-btn:not(:disabled) { border-color: var(--ichor); color: var(--ichor); box-shadow: 0 0 16px #c46bff33; }
+.sigil { border-color: #3c2a52; }
+.sigil:not(.cant) .buy, .mutation:not(.cant) .buy { color: var(--ichor); }
+.row.done .info { opacity: 0.7; }
+.row.done .buy { color: var(--gold) !important; opacity: 1 !important; }
+.row .reward { color: var(--gold); }
+.trial-on { border-color: var(--gold); }
+.seal { border-color: #4a1f2a; }
+.seal:not(.cant):not(.done) .buy { color: #ff8a9c; }
+.ending-card { border-color: var(--gold); }
+.automation .setting { padding: 4px 0; }
+.automation .inline { padding: 0 0 6px 32px; }
+.automation input[type=number] {
+  width: 72px; font-family: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px;
+}
+.grimoire h4 { font-weight: normal; color: var(--gold); margin: 14px 0 2px; }
+.grimoire .lore { font-style: italic; margin-top: 2px; }
+
+/* the world darkens as the acts go on */
+body[data-act="2"] { --accent: #8affc8; }
+body[data-act="3"] #hud, body[data-act="end"] #hud { border-bottom-color: #4a1f2a; }
+
+/* ---------- ending ---------- */
+#ending { position: fixed; inset: 0; z-index: 55; }
+#ending[hidden] { display: none; }
+#ending.finale {
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: #050308f2; animation: fade-in 2s;
+}
+.ending-inner { max-width: 460px; text-align: center; }
+.ending-choices { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+.ending-choices button { padding: 14px; display: flex; flex-direction: column; gap: 2px; border-color: var(--accent); }
+.ending-choices button b { font-weight: normal; font-size: 1.1rem; color: var(--accent); letter-spacing: 0.1em; }
+.ending-choices button span { font-size: 0.8rem; color: var(--dim); }
+#ending.cinematic { pointer-events: none; display: flex; align-items: flex-end; }
+.ending-lines {
+  width: 100%; padding: 20px 20px calc(28px + var(--safe-b)); pointer-events: auto;
+  background: linear-gradient(transparent, #000 30%); text-align: center; min-height: 45vh;
+}
+.ending-lines p { font-style: italic; font-size: 1.05rem; line-height: 1.5; margin: 0 0 12px; animation: line-in 2.5s ease-out both; }
+.ending-lines .ending-title { font-style: normal; letter-spacing: 0.4em; color: var(--accent); font-size: 1.4rem; margin-top: 18px; text-shadow: 0 0 16px #7dffb066; }
+.ending-after { margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: line-in 2s ease-out both; }
+#end-ngplus { padding: 12px 22px; border-color: var(--accent); color: var(--accent); }
+@keyframes line-in { from { opacity: 0; filter: blur(3px); } }
+body.cinematic #scene-wrap {
+  position: fixed; inset: 0; z-index: 54; max-height: none; border: 0;
+  display: flex; align-items: center; background: #000;
+}
+body.cinematic #scene-box { width: 160%; margin-left: -30%; transform: translateY(-27vh); }
+@media (min-width: 900px) { body.cinematic #scene-box { width: min(100%, calc(60vh * 3.2)); margin: 0 auto; transform: translateY(-18vh); } }
+body.reduced-motion .ending-lines p, body.reduced-motion .ending-after, body.reduced-motion #ending.finale { animation-duration: 0.01s; }

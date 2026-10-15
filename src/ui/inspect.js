@@ -14,7 +14,7 @@ import {
 import { GENERATORS, UPGRADES, PACTS } from '../core/content.js';
 import { state, hasPact } from '../core/state.js';
 import {
-  modifiers, wps, genRate, clickValue, favorMult, madnessMult, favorGain, sanityDrain, genCost, buyAmount,
+  modifiers, wps, genRate, clickValue, favorMult, madnessMult, favorGain, sanityDrain, rawDrain, genCost, buyAmount,
   buyGenerator, buyUpgrade, buyPact,
 } from '../core/economy.js';
 import { cosmetic, isUnlocked } from '../core/cosmetics.js';
@@ -40,13 +40,13 @@ const TIPS = {
 
   favor: () => `<b>Eldritch Favor</b>
     <p>Earned by summoning It. Each <i>unspent</i> point adds +${FAVOR_BONUS * 100}% to everything. Spend it on Pacts for permanent perks — but spent Favor stops boosting you.</p>` +
-    dl([['Unspent', state.favor], ['Current bonus', `×${favorMult().toFixed(2)}`],
-        ['Next summoning', favorGain() > 0 ? `+${favorGain()}` : `Earn ${fmt(VEIL_GOAL)} this run`]]),
+    dl([['Unspent', fmt(state.favor)], ['Current bonus', `×${fmt(favorMult())}`],
+        ['Next summoning', favorGain() > 0 ? `+${fmt(favorGain())}` : `Earn ${fmt(VEIL_GOAL)} this run`]]),
 
   sanity: () => {
     const net = SANITY_REGEN - sanityDrain();
     return `<b>Sanity</b>
-      <p>Your greater followers wear on your mind. Lower sanity makes you more productive (up to ×${1 + MADNESS_MAX_BONUS} at 0%), but below ${MADNESS_THRESHOLD}% madness strikes at random. Your mind rests while you're away.</p>` +
+      <p>Your greater followers wear on your mind. The more followers, the faster it falls, though the fall eases off as it steepens. Lower sanity makes you more productive (up to ×${1 + MADNESS_MAX_BONUS} at 0%), but below ${MADNESS_THRESHOLD}% madness strikes at random. Your mind rests while you're away.</p>` +
       dl([['Sanity', `${Math.floor(state.sanity)}%`], ['Recovers', `+${SANITY_REGEN}/s`], ['Drained by followers', `−${sanityDrain().toFixed(2)}/s`],
           ['Net', `${net >= 0 ? '+' : ''}${net.toFixed(2)}/s`], ['Madness bonus', `×${madnessMult().toFixed(2)}`],
           ['Steady Mind', `costs ${STEADY_COST * 100}% of whispers, +${STEADY_AMOUNT}`]]);
@@ -59,12 +59,12 @@ const TIPS = {
   gen: id => {
     const g = GENERATORS.find(g => g.id === id), m = modifiers();
     const each = g.rate * m.gen[g.id] * m.all, n = state.owned[g.id];
-    const drain = g.drain * n * (hasPact('steadfast') ? 0.5 : 1);
+    const raw = rawDrain(), share = raw > 0 ? g.drain * n / raw : 0;
     return `<b>${g.name}</b><p>${g.desc}</p>` + dl([
       ['Owned', n],
       ['Each produces', `${fmt(each)}/s`],
       ['All ' + n, `${fmt(each * n)}/s (${pctOf(each * n, wps(m))})`],
-      g.drain > 0 && ['Sanity drain', `−${drain.toFixed(2)}/s (${g.drain} each)`],
+      g.drain > 0 && ['Share of sanity drain', `${Math.round(share * 100)}% (${g.drain} each)`],
       ['Next one costs', fmt(genCost(g))],
     ]);
   },
@@ -77,7 +77,7 @@ const TIPS = {
 
   pact: id => {
     const p = PACTS.find(p => p.id === id);
-    return `<b>${p.name}</b><p>${p.desc}</p>` + dl([['Cost', `${p.cost} Favor`], ['Unspent Favor', state.favor],
+    return `<b>${p.name}</b><p>${p.desc}</p>` + dl([['Cost', `${p.cost} Favor`], ['Unspent Favor', fmt(state.favor)],
       ['Bonus you give up', `−${Math.round(p.cost * FAVOR_BONUS * 100)}% to everything`]]) +
       '<p class="sub">Pacts are permanent.</p>';
   },

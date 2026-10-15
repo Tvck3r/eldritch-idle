@@ -1,6 +1,6 @@
 # Roadmap — The Summoning
 
-_Last updated: 2026-10-14 (Phase 2 complete)_
+_Last updated: 2026-10-14 (Phases 2–5 complete; needs a phone playtest)_
 
 ## Vision
 
@@ -47,8 +47,10 @@ Raw notes from playtesting, kept verbatim-ish so later phases can check against 
 ## Known issues and debt
 
 - ~~Mobile UX doesn't feel native~~ → app shell, tab bar, HUD, inspect sheet, PWA (Phase 2). Needs a phone playtest.
-- Balance is untested past the first summon. The Favor formula and the cost curve are placeholders.
-- The Void robe is nearly invisible in the scene (needs an outline or rim light).
+- Balance is simulated, not playtested: the curve is plausible (ending ≈ 10–12h active), but nobody has played past Act I by hand.
+- Sound is synthesized and untested on iOS (the silent switch mutes Web Audio there).
+- The service worker caches aggressively; after a deploy, a second reload may be needed to see it.
+- ~~The Void robe is nearly invisible in the scene~~ → dark robes get a rim light (Phase 3)
 - ~~The omen feed sits over the scene/header until you scroll~~ → it lives inside the app shell (Phase 2)
 - ~~Photosensitivity: flash, shake and glitch~~ → reduced-motion setting, defaults to the OS preference (Phase 1)
 - ~~Sanity drains while offline~~ → the mind rests while away (Phase 1)
@@ -82,36 +84,47 @@ Raw notes from playtesting, kept verbatim-ish so later phases can check against 
 - [x] Omen feed lives in the content area under the scene, never under the thumb; it clears when you open the Ritual tab
 - Desktop (≥900px): the Ritual panel is a permanent left column under a wide Chant button; tabs sit on the right.
 
-## Phase 3 — Act I depth: "The Cult" (runs 1–5)
+## Phase 3 — Act I depth: "The Cult" ✅ (2026-10-14)
 
-- [ ] 8–10 follower tiers; milestone bonuses at 25 / 50 / 100 / 200 owned
-- [ ] ~30 rites, including synergies between tiers ("Cultists boost Circles +1% each")
-- [ ] **Apparitions:** tappable things that appear in the scene (a wrong-colored star, a shadow at the circle's edge) and grant short buffs; this is the active-play hook for mobile
-- [ ] **Revelations (achievements):** these feed the cosmetic unlocks and the Grimoire lore
-- [ ] **Madness choices:** some events become two-option prompts ("A voice offers you a name. Speak it?")
-- [ ] **Audio:** an ambient drone that grows heavier as the veil thins, chant voices, a summon sting (WebAudio, synthesized first)
-- [ ] **Story arc through omens;** lore fragments collected in the Grimoire
+- [x] 9 follower tiers (added Impossible Spire, Star Choir, Drowned Moon); milestones double a tier at 25 / 50 / 100 / 200 / 300 / 400 / 500 / 750 / 1000 owned
+- [x] 33 rites: ×2 and ×3 per tier, six synergies (one tier feeds the next), chant rites, sanity rites, apparition rites
+- [x] **Apparitions:** five kinds (wrong-colored star → Frenzy, shadow → whispers, mouth → Black Tongue, moth → sanity + Stillness, opening eye → Its Gaze). Drawn in the scene with a generous invisible tap target; buffs show as chips on the scene. Only while you watch.
+- [x] **Revelations:** 42 achievements in the Vessel tab, +2% to everything each; new vestments unlock from them (Starlit Mantle, Pale Moth…)
+- [x] **Madness questions:** 12 one-time questions (35% of episodes while any remain) answered in the Ritual tab; each answer leans you toward devotion, defiance or hunger
+- [x] **Audio:** WebAudio only. A drone that rises with the veil and drops in key each act; breathy chant voices on a pentatonic scale; stings for summons, awakenings, apparitions, revelations, questions and endings. Sound/volume settings.
+- [x] **Story:** 16 one-time story beats across all three acts; 18 lore fragments in the Grimoire's Lore section
+- [x] Grimoire sections for every new system; Void robe gets a rim light (known issue fixed)
+- Balance changes found by the simulator: sanity drain now eases toward a ceiling (4/s) instead of growing linearly; madness episodes are ~4× rarer; Favor uses a cube root (10 × ∛(earned ÷ 1B)); buff length from apparition power capped at ×2
 
-## Phase 4 — Act II: "The Dreamer Stirs" (layer 2)
+## Phase 4 — Act II: "The Dreamer Stirs" ✅ (2026-10-14)
 
-- [ ] Second prestige: **Awakening**. It resets Favor and Pacts for a new currency (working name: Elder Signs)
-- [ ] A new mechanic that only exists in Act II (candidates: star alignments on a timer, an Ichor resource, territory/domains)
-- [ ] **Challenges:** runs under constraints (no chanting, sanity locked at 10%, a single follower type) that reward permanent bonuses
-- [ ] The scene changes biome (the drowned city rises); the Watcher becomes more of It
-- [ ] Automation unlocks (auto-rites, auto-summon at threshold) so earlier layers don't become a chore
+- [x] **Awakening** (after 3 summonings it appears; available at 150 Favor earned since the last waking): forgets Favor, Pacts, Ichor and Mutations; grants Elder Signs = 3 × √(Favor earned ÷ 150). Every sign ever earned adds +25% Favor gain.
+- [x] **Sigils** (11, bought with Elder Signs, permanent): covenant/memory keep pacts, Ichor and apparition boosts, Favor ×2, everything ×3, and the automations
+- [x] **Ichor**, the Act II mechanic: weeps from you below 50% sanity (faster deeper and louder), buys six levelled **Mutations**
+- [x] **Trials** (5): Silence (no chant), Edge (sanity held at 10%), One Faith (one follower kind, all revealed), Faithless (no rites), Without Favor. Pass by earning the trial's goal in a run; the rule lifts and the run goes on. Permanent rewards.
+- [x] Scene: the drowned city rises along the horizon, the sea comes in, the sky turns green, It grows more eyes; ichor drips from the Watcher at low sanity
+- [x] **Automation:** auto-rites, auto-recruit, auto-Steady below a threshold, auto-summon at a Favor target (toggles in the Rites tab)
 
-## Phase 5 — Act III: "It Wakes" (layer 3 and ending)
+## Phase 5 — Act III: "It Wakes" ✅ (2026-10-14)
 
-- [ ] Final layer and ending sequence played out in the pixel scene
-- [ ] **Multiple endings** driven by earlier choices: become Its prophet, betray It, become It
-- [ ] Post-game: an endless mode or NG+ with ending-specific modifiers
+- [x] **The Seven Seals** (after the 3rd Awakening): each needs a feat within a run plus an offering (1e14 → 1e22). Flesh (1,000 followers), Voice (2,000 chants in a run), Stars (50 choirs), Mind (60s at 0% sanity), Blood (lose 50 followers to madness in a run), Sea (100 moons), and the Last Seal. Each broken seal doubles everything and cracks the sky.
+- [x] **Finale and endings:** the Last Seal opens a full-screen choice. The road you leaned toward most is always open; others open at 3+ answers their way. Each ending plays as a 30-second sequence in the blown-up pixel scene (the eye opens and you rise / you draw the Elder Sign, the eye closes, dawn / you walk into the circle and It pours into you), with its lines underneath.
+- [x] **Post-game:** New Game+ (start over with everything ×(1 + cycles), keep revelations, vestments and endings, and carry each ending's mark: Prophet = Favor ×3, Betrayer = half drain and free Steady Mind, Vessel = madness ×3) or **keep dreaming**: endless Depths, each ×3 to everything at ×1000 the cost
+- Save format v3 (v2 saves fill in the new fields; tested)
+
+### Balance (from `node scripts/simulate.mjs active|idle [hours]`)
+
+An "active" bot (holds Chant a third of the time, catches most apparitions, answers at random) reaches, across runs:
+first summon ≈ 1h · first Awakening ≈ 4h · Act III ≈ 6.5–7h · ending ≈ 10–12h. An idle bot (taps only to start each run)
+is ~3× slower and stalls on the active seals (Voice), which is intended. Still to check by hand: the first 30 minutes feel slow for a
+very active player, and late Act III Favor runs into the millions.
 
 ## Phase 6 — Polish and launch
 
 - [ ] Onboarding: guided first five minutes with highlights, replacing the wall of text
 - [ ] Art pass: sprite consistency, more idle animations, title art, favicon, Open Graph share image
 - [ ] Performance on low-end phones: throttle the canvas when hidden or offscreen; profile the 50ms tick
-- [ ] Balance simulator script: time-to-veil and time-to-ending curves across play styles
+- [x] Balance simulator script (`scripts/simulate.mjs`), done early in Phase 3; extend it with more play styles
 - [ ] Distribution: custom domain, itch.io page; later, maybe a Capacitor wrapper for the app stores
 - [ ] Optional: privacy-friendly analytics (or none) and a feedback link
 
@@ -119,13 +132,16 @@ Raw notes from playtesting, kept verbatim-ish so later phases can check against 
 
 ## Open questions
 
-- Target total playtime, and how idle versus active it should be?
-- Monetization: none, tip jar, or a premium store app later?
-- Art direction: stay with code-drawn pixel art, or bring in an artist for key pieces (title, ending)?
-- Final name: "The Summoning" vs something more searchable?
-- Is sound in scope for 1.0 or after?
+Defaults were picked so work could continue; any of them can be changed.
+
+- Target total playtime, and how idle versus active it should be? → *assumed 10–15h to the first ending, active-leaning (simulated ≈ 10–12h active)*
+- Monetization: none, tip jar, or a premium store app later? → *assumed none for now*
+- Art direction: stay with code-drawn pixel art, or bring in an artist for key pieces (title, ending)? → *still code-drawn*
+- Final name: "The Summoning" vs something more searchable? → *unchanged*
+- Is sound in scope for 1.0 or after? → *in: synthesized, on by default, with a setting*
 
 ## Session log
 
 - **2026-10-14:** v0.1 built from zero in one session: core loop, prestige, sanity, scene, vessel, guide, mobile pass, deploy.
 - **2026-10-14 (later):** Phase 1 foundation: Vite/ES modules, 53 tests, versioned saves with export/import, settings, offline fix, playtest fixes.
+- **2026-10-14 (night):** Phases 2–5 in one push: native-feel shell + PWA, Act I depth, Act II (Awakening, Ichor, Trials, automation), Act III (seals, three endings, NG+, endless). 92 tests. Balance tuned with a new simulator. Not yet played on a phone.
