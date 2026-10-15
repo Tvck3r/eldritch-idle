@@ -443,6 +443,7 @@ function render() {
   // Summon
   const gain = favorGain();
   $('summon').style.display = gain > 0 && !fx.summonStart ? 'block' : 'none';
+  document.body.classList.toggle('can-summon', gain > 0 && !fx.summonStart);
   $('summon').textContent = `Summon It  ·  +${gain} Favor`;
 
   const pct = veilPct();

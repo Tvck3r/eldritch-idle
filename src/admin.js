@@ -8,7 +8,7 @@
   panel.id = 'admin';
   panel.style.display = 'none';
   panel.innerHTML = `
-    <div class="title"><span>ADMIN</span><span class="sub">\` to toggle</span></div>
+    <div class="title"><span>ADMIN <span class="sub">\` to toggle</span></span><button data-close class="small">×</button></div>
     <label>Whispers</label>
     <div class="grid">
       <button data-a="w3">+1K</button><button data-a="w6">+1M</button><button data-a="w9">+1B</button>
@@ -66,6 +66,7 @@
   };
 
   panel.addEventListener('click', e => {
+    if (e.target.closest('[data-close]')) return toggle();
     const a = e.target.closest('[data-a]');
     if (a) { actions[a.dataset.a](); rebuildLists(); }
     const s = e.target.closest('[data-speed]');

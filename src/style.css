@@ -87,7 +87,7 @@ button {
   font-family: inherit; color: var(--text); background: var(--panel);
   border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
 }
-button:hover:not(:disabled) { border-color: var(--accent); }
+@media (hover: hover) { button:hover:not(:disabled) { border-color: var(--accent); } }
 button:disabled { opacity: 0.4; cursor: default; }
 
 #chant {
@@ -185,3 +185,73 @@ button.active { border-color: var(--accent); color: var(--accent); }
 .opts { display: flex; flex-wrap: wrap; gap: 6px; }
 .opts .sealed { opacity: 0.45; font-style: italic; }
 @media (max-width: 600px) { .wardrobe { grid-template-columns: 1fr; justify-items: center; } }
+
+/* ============================================================
+   TOUCH & MOBILE
+   ============================================================ */
+
+/* manipulation = no double-tap zoom and no tap delay; pinch zoom still works */
+* { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+
+#tabs { display: none; }
+
+.floater {
+  position: fixed; z-index: 30; pointer-events: none; transform: translateX(-50%);
+  color: var(--accent); font-size: 1rem; text-shadow: 0 0 6px #000;
+  animation: float-up 0.9s ease-out forwards;
+}
+@keyframes float-up { to { transform: translate(-50%, -70px); opacity: 0; } }
+
+@media (max-width: 700px) {
+  body { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+  body.can-summon { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+  header { padding: 12px 16px 4px; }
+  header h1 { font-size: 1.3rem; letter-spacing: 0.2em; margin-bottom: 8px; }
+
+  /* crop the scene to the circle so sprites aren't microscopic */
+  #scene-wrap { overflow: hidden; margin: 6px 16px 0; padding: 0; border: 1px solid var(--border); border-radius: 6px; }
+  #scene { width: 170%; margin-left: -35%; border: 0; border-radius: 0; }
+
+  /* flatten both columns into one ordered stack */
+  main { display: flex; flex-direction: column; gap: 0; padding: 0 16px; }
+  #left, #right { display: contents; }
+
+  #resource {
+    order: 1; position: sticky; top: 0; z-index: 5; margin: 8px -16px 0; padding: 8px 16px;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  #whispers { font-size: 1.8rem; line-height: 1.15; }
+  #sanity { order: 2; width: 100%; max-width: none; margin: 12px 0 0; }
+
+  #tabs {
+    order: 3; display: flex; position: sticky; top: var(--res-h, 72px); z-index: 4;
+    margin: 8px -16px 8px; padding: 0 16px; background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  #tabs button {
+    flex: 1; padding: 12px 4px; border: 0; border-bottom: 2px solid transparent; border-radius: 0;
+    background: none; color: var(--dim); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  #tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  #tabs button.ping::after { content: ' •'; color: var(--accent); }
+
+  .panel { order: 4; display: none; }
+  .panel.shown { display: block; }
+  .panel > h2:first-child { margin-top: 4px; }
+  #log { max-height: none; font-size: 0.95rem; padding-top: 4px; }
+  #footer-buttons { order: 5; margin-bottom: 16px; }
+  .row { padding: 12px; }
+
+  /* thumb zone: chant pinned to the bottom, summon floating above it */
+  #chant {
+    position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; width: auto;
+    height: calc(76px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+    margin: 0; border-radius: 18px 18px 0 0; border-bottom: 0; font-size: 1.25rem;
+    background: linear-gradient(#2b1a40, var(--panel)); box-shadow: 0 -6px 24px #000c;
+  }
+  #chant:active { transform: none; background: #3a2456; }
+  #summon { position: fixed; z-index: 21; left: 16px; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); margin: 0; }
+
+  #admin { left: 8px; right: 8px; top: 8px; bottom: auto; width: auto; max-height: 60vh; overflow-y: auto; }
+  #tooltip { max-width: calc(100vw - 16px); }
+}

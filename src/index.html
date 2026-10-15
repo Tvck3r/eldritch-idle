@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>The Summoning</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -21,7 +21,7 @@
 
   <div id="scene-wrap"><canvas id="scene"></canvas></div>
 
-  <main>
+  <main data-tab="followers">
     <section id="left">
       <div id="resource">
         <div id="whispers" data-tip="whispers">0</div>
@@ -35,19 +35,28 @@
         <div id="sanity-row"><span id="sanity-label" class="sub"></span><button id="steady" class="small">Steady Mind</button></div>
       </div>
       <button id="summon"></button>
-      <div id="log"></div>
+      <div id="log" class="panel" data-panel="log"></div>
     </section>
 
     <section id="right">
+      <div id="tabs">
+        <button data-tab="followers" class="active">Followers</button>
+        <button data-tab="rites">Rites</button>
+        <button data-tab="log">Omens</button>
+      </div>
+      <div class="panel shown" data-panel="followers">
       <h2>Followers
         <span id="buy-mode"><button class="small" data-buy="1">×1</button><button class="small" data-buy="10">×10</button><button class="small" data-buy="max">Max</button></span>
       </h2>
       <div id="generators"></div>
+      </div>
+      <div class="panel" data-panel="rites">
       <h2>Rites</h2>
       <div id="upgrades"></div>
       <div id="pacts-section">
         <h2>Pacts <span class="sub">— spent Favor stops empowering you</span></h2>
         <div id="pacts"></div>
+      </div>
       </div>
       <div id="footer-buttons">
         <button id="save-btn" class="small">Save</button>

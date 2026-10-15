@@ -87,8 +87,32 @@ function refreshTip() {
   tipEl.style.display = 'block';
   placeTip();
 }
-document.addEventListener('mouseover', e => { tipTarget = e.target.closest('[data-tip]'); refreshTip(); });
-document.addEventListener('mousemove', e => { mouse = { x: e.clientX, y: e.clientY }; if (tipTarget) placeTip(); });
+// Mouse: hover. Touch: tap plain text to read it, press-and-hold buttons
+// (a tap on a button still buys). Tap anywhere else to dismiss.
+let lastPointer = 'mouse', pressTimer = null, swallowClick = false;
+document.addEventListener('mouseover', e => {
+  if (lastPointer === 'touch') return; // browsers fake mouseover after a tap
+  tipTarget = e.target.closest('[data-tip]'); refreshTip();
+});
+document.addEventListener('mousemove', e => {
+  if (lastPointer === 'touch') return;
+  mouse = { x: e.clientX, y: e.clientY }; if (tipTarget) placeTip();
+});
+document.addEventListener('pointerdown', e => {
+  lastPointer = e.pointerType;
+  if (e.pointerType !== 'touch') return;
+  const el = e.target.closest('[data-tip]');
+  mouse = { x: e.clientX, y: e.clientY - 40 }; // keep the tip clear of the finger
+  if (!el) { tipTarget = null; refreshTip(); return; }
+  if (el.tagName !== 'BUTTON') { tipTarget = el; refreshTip(); return; }
+  pressTimer = setTimeout(() => { tipTarget = el; refreshTip(); swallowClick = true; }, 450);
+}, true);
+for (const ev of ['pointerup', 'pointercancel']) document.addEventListener(ev, () => clearTimeout(pressTimer), true);
+document.addEventListener('click', e => {
+  if (swallowClick) { swallowClick = false; e.stopPropagation(); e.preventDefault(); }
+}, true);
+document.addEventListener('contextmenu', e => { if (lastPointer === 'touch' && e.target.closest('[data-tip]')) e.preventDefault(); });
+window.addEventListener('scroll', () => { if (lastPointer === 'touch' && tipTarget) { tipTarget = null; refreshTip(); } }, { passive: true });
 setInterval(() => { if (tipTarget) refreshTip(); }, 250);
 
 // ---------- modal ----------
@@ -126,7 +150,7 @@ const GUIDE = [
     <p><b>Chant</b> (the big circle) to earn <b>whispers</b>, the currency of devotion. Spend whispers on
     <b>Followers</b>, who whisper for you even while you're away.</p>
     <p>Earn <b>${fmt(VEIL_GOAL)}</b> whispers in a single run to tear the veil — then call It through.</p>
-    <p class="hint">Hover over any number to see what it means and where it comes from.</p>` },
+    <p class="hint">Hover over any number (or press and hold on mobile) to see what it means and where it comes from.</p>` },
 
   { id: 'followers', title: 'Followers', body: () => `
     <p>Each follower produces whispers every second. Each one you buy makes the next of that kind
@@ -231,6 +255,35 @@ function openWardrobe() {
   requestAnimationFrame(loop);
 }
 let previewOn = false;
+
+// ---------- mobile tabs ----------
+// On narrow screens the right column becomes tabs; on desktop every panel shows.
+
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  document.querySelectorAll('#tabs button').forEach(t => t.classList.toggle('active', t === b));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('shown', p.dataset.panel === b.dataset.tab));
+});
+// Tabs stick just under the pinned resource bar, whatever its height
+new ResizeObserver(([e]) => document.documentElement.style.setProperty('--res-h', e.target.offsetHeight + 'px'))
+  .observe($('resource'));
+// Dot on the Rites tab when something there is affordable
+setInterval(() => {
+  const ready = document.querySelector('[data-upg]:not(:disabled), [data-pact]:not(:disabled)');
+  document.querySelector('[data-tab="rites"]').classList.toggle('ping', !!ready);
+}, 500);
+
+// ---------- chant feedback ----------
+
+$('chant').addEventListener('pointerdown', e => {
+  const f = document.createElement('div');
+  f.className = 'floater';
+  f.textContent = '+' + fmt(clickValue());
+  f.style.left = e.clientX + (Math.random() - 0.5) * 40 + 'px';
+  f.style.top = e.clientY - 12 + 'px';
+  document.body.appendChild(f);
+  f.addEventListener('animationend', () => f.remove());
+});
 
 $('open-guide').addEventListener('click', () => openGrimoire());
 $('open-vessel').addEventListener('click', openWardrobe);
