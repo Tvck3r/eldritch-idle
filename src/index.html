@@ -40,9 +40,9 @@
 
     <section id="right">
       <div id="tabs">
-        <button data-tab="followers" class="active">Followers</button>
-        <button data-tab="rites">Rites</button>
-        <button data-tab="log">Omens</button>
+        <button data-tab="followers" class="active">Followers<span class="badge"></span></button>
+        <button data-tab="rites">Rites<span class="badge"></span></button>
+        <button data-tab="log">Omens<span class="badge"></span></button>
       </div>
       <div class="panel shown" data-panel="followers">
       <h2>Followers
@@ -64,6 +64,8 @@
       </div>
     </section>
   </main>
+
+  <div id="omen-feed" aria-live="polite"></div>
 
   <div id="intro" hidden>
     <div class="intro-inner">

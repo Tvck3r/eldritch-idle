@@ -363,6 +363,7 @@ function log(msg) {
   p.textContent = msg;
   $('log').prepend(p);
   while ($('log').children.length > 30) $('log').lastChild.remove();
+  document.dispatchEvent(new CustomEvent('omen', { detail: msg }));
 }
 
 function buildGenerators() {

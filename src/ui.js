@@ -259,19 +259,72 @@ let previewOn = false;
 // ---------- mobile tabs ----------
 // On narrow screens the right column becomes tabs; on desktop every panel shows.
 
+const isMobile = matchMedia('(max-width: 700px)');
+let activeTab = 'followers', unreadOmens = 0;
+
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if (!b) return;
+  activeTab = b.dataset.tab;
+  if (activeTab === 'log') unreadOmens = 0;
   document.querySelectorAll('#tabs button').forEach(t => t.classList.toggle('active', t === b));
-  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('shown', p.dataset.panel === b.dataset.tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('shown', p.dataset.panel === activeTab));
+  updateBadges();
 });
 // Tabs stick just under the pinned resource bar, whatever its height
 new ResizeObserver(([e]) => document.documentElement.style.setProperty('--res-h', e.target.offsetHeight + 'px'))
   .observe($('resource'));
-// Dot on the Rites tab when something there is affordable
-setInterval(() => {
-  const ready = document.querySelector('[data-upg]:not(:disabled), [data-pact]:not(:disabled)');
-  document.querySelector('[data-tab="rites"]').classList.toggle('ping', !!ready);
-}, 500);
+// Tab badges: how many things you can buy there, or unread omens
+function updateBadges() {
+  const counts = {
+    followers: [...document.querySelectorAll('[data-gen]:not(.cant)')].filter(el => el.style.display !== 'none').length,
+    rites: document.querySelectorAll('[data-upg]:not(:disabled), [data-pact]:not(:disabled)').length,
+    log: unreadOmens,
+  };
+  for (const [tab, n] of Object.entries(counts)) {
+    const badge = document.querySelector(`[data-tab="${tab}"] .badge`);
+    badge.textContent = n > 9 ? '9+' : n || '';
+    badge.classList.toggle('on', n > 0 && tab !== activeTab);
+  }
+}
+setInterval(updateBadges, 300);
+
+// ---------- omen feed ----------
+// On mobile, new log lines drift in over the game and fade away, so you
+// don't have to visit the Omens tab. Newest on top; older ones fall and fade.
+
+const OMEN_FEED_MAX = 3;   // visible at once
+const OMEN_GAP_MS = 900;   // bursts (e.g. on load) drip in one at a time
+const omenQueue = [];
+let omenPumping = false;
+
+function retireOmen(el) {
+  if (el.classList.contains('out')) return;
+  el.classList.add('out');
+  el.addEventListener('animationend', () => el.remove());
+  setTimeout(() => el.remove(), 1200); // in case animationend never fires (background tab, etc.)
+}
+function showOmen(msg) {
+  const feed = $('omen-feed');
+  const el = document.createElement('div');
+  el.className = 'omen-toast';
+  el.textContent = msg;
+  feed.prepend(el);
+  [...feed.children].filter(c => !c.classList.contains('out')).slice(OMEN_FEED_MAX).forEach(retireOmen);
+  setTimeout(() => retireOmen(el), 4000 + msg.length * 40);
+}
+function pumpOmens() {
+  if (!omenQueue.length) { omenPumping = false; return; }
+  omenPumping = true;
+  showOmen(omenQueue.shift());
+  setTimeout(pumpOmens, OMEN_GAP_MS);
+}
+document.addEventListener('omen', e => {
+  if (!isMobile.matches || activeTab === 'log') return;
+  unreadOmens++;
+  omenQueue.push(e.detail);
+  if (omenQueue.length > 6) omenQueue.splice(0, omenQueue.length - 6); // don't backlog forever
+  if (!omenPumping) pumpOmens();
+});
 
 // ---------- chant feedback ----------
 

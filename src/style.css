@@ -194,7 +194,9 @@ button.active { border-color: var(--accent); color: var(--accent); }
 * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 button { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 
-#tabs { display: none; }
+#tabs, #omen-feed { display: none; }
+@keyframes omen-in { from { opacity: 0; transform: translateY(-16px); filter: blur(2px); } }
+@keyframes omen-out { to { opacity: 0; transform: translateY(18px); filter: blur(2px); } }
 
 .floater {
   position: fixed; z-index: 30; pointer-events: none; transform: translateX(-50%);
@@ -233,7 +235,26 @@ button { user-select: none; -webkit-user-select: none; -webkit-touch-callout: no
     background: none; color: var(--dim); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
   }
   #tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
-  #tabs button.ping::after { content: ' •'; color: var(--accent); }
+  #tabs .badge {
+    display: none; margin-left: 6px; padding: 1px 6px; border-radius: 9px; vertical-align: 1px;
+    background: var(--accent); color: var(--bg); font-size: 0.7rem; letter-spacing: 0; font-weight: bold;
+  }
+  #tabs .badge.on { display: inline-block; }
+
+  /* omens drift in above the chant bar, then fall away */
+  #omen-feed {
+    display: flex; flex-direction: column; gap: 6px; position: fixed; z-index: 19; pointer-events: none;
+    left: 16px; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+  body.can-summon #omen-feed { bottom: calc(150px + env(safe-area-inset-bottom)); }
+  .omen-toast {
+    padding: 8px 12px; border-left: 2px solid var(--accent); border-radius: 4px;
+    background: #0d0b14; box-shadow: 0 4px 16px #000c;
+    font-style: italic; font-size: 0.9rem; line-height: 1.35;
+    animation: omen-in 0.6s ease-out;
+  }
+  .omen-toast + .omen-toast { color: var(--dim); border-left-color: var(--border); }
+  .omen-toast.out { animation: omen-out 0.9s ease-in forwards; }
 
   .panel { order: 4; display: none; }
   .panel.shown { display: block; }
