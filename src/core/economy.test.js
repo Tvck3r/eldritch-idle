@@ -247,3 +247,13 @@ describe('sanity', () => {
     expect(full).toBeCloseTo(10 * circle.drain);
   });
 });
+
+describe('ceaseless chant', () => {
+  it('holding Chant is unlocked by the Ceaseless Chant rite', () => {
+    expect(eco.canHoldChant()).toBe(false);
+    state.totalEarned = 300;
+    state.whispers = 500;
+    expect(eco.buyUpgrade('ceaseless')).toBe(true);
+    expect(eco.canHoldChant()).toBe(true);
+  });
+});

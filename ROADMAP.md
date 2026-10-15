@@ -1,6 +1,6 @@
 # Roadmap — The Summoning
 
-_Last updated: 2026-10-14 (Phase 1 complete)_
+_Last updated: 2026-10-14 (Phase 2 complete)_
 
 ## Vision
 
@@ -46,10 +46,10 @@ Raw notes from playtesting, kept verbatim-ish so later phases can check against 
 
 ## Known issues and debt
 
-- **Mobile UX still doesn't feel native** (see the feedback log) → Phase 2
+- ~~Mobile UX doesn't feel native~~ → app shell, tab bar, HUD, inspect sheet, PWA (Phase 2). Needs a phone playtest.
 - Balance is untested past the first summon. The Favor formula and the cost curve are placeholders.
 - The Void robe is nearly invisible in the scene (needs an outline or rim light).
-- The omen feed sits over the scene/header until you scroll (it's anchored under the pinned whispers bar). The Phase 2 app shell resolves this.
+- ~~The omen feed sits over the scene/header until you scroll~~ → it lives inside the app shell (Phase 2)
 - ~~Photosensitivity: flash, shake and glitch~~ → reduced-motion setting, defaults to the OS preference (Phase 1)
 - ~~Sanity drains while offline~~ → the mind rests while away (Phase 1)
 - ~~No save versioning / export~~ → versioned saves, migrations, export/import (Phase 1)
@@ -70,18 +70,17 @@ Raw notes from playtesting, kept verbatim-ish so later phases can check against 
 - [x] Feedback quick fixes: omens from the top, second tap closes a tooltip
 - [x] Dev tooling: `?admin&save=<export>` loads a save from the URL; `?admin=0` keeps the panel closed
 
-## Phase 2 — Native-feel mobile UX (next)
+## Phase 2 — Native-feel mobile UX ✅ (2026-10-14)
 
-Check the feedback log above before starting.
-
-- [ ] **Hold to chant** — an early, cheap Rite ("Ceaseless Chant", ~500 whispers) that lets you hold the Chant button to chant ~8×/s. Teach it with a one-time hint. Make sure it plays well with haptics and the floaters.
-- [ ] **App shell, no page scroll:** fixed-viewport layout; the scene collapses to a strip when the player scrolls inside a panel
-- [ ] **Bottom tab bar** (Ritual / Followers / Rites / Vessel / Grimoire) with chant as a central action
-- [ ] **Always-visible HUD:** whispers, rate, sanity (ring or bar), Favor; everything you need at a glance
-- [ ] **Tap-to-inspect bottom sheet** instead of hover tooltips on touch; hover tooltips stay on desktop. A tap on a row's info area inspects it; a tap on its buy area buys. No more long-press guessing.
-- [ ] **PWA:** manifest, icons, service worker, `display: standalone`, so it can be added to the home screen and open fullscreen
-- [ ] Haptics (Android `navigator.vibrate`), animated number count-ups, press states
-- [ ] Omen feed placement inside the app shell (top, under the HUD; never under the thumb)
+- [x] **Hold to chant:** the "Ceaseless Chant" rite (500 whispers, appears at 250 earned) lets you hold Chant for 8 chants/s. A one-time omen and a pulsing button teach it; floaters and haptics fire on every repeat.
+- [x] **App shell, no page scroll:** fixed-viewport grid; only panels scroll; the scene folds into a strip of sky (the eye still watches) while you scroll a panel
+- [x] **Bottom tab bar** (Ritual / Followers / Rites / Vessel) with a raised round Chant in the middle; the Grimoire and Settings are HUD icons. The Vessel is a tab now, not a modal.
+- [x] **Always-visible HUD:** whispers (with count-up), rate, per-chant, a sanity ring, a Favor chip, a thin veil bar
+- [x] **Tap-to-inspect bottom sheet** on touch (live, swipe down to close, with a buy button); hover tooltips stay on desktop. Rows split into an info side (inspect) and a price side (buy).
+- [x] **PWA:** manifest, generated pixel-eye icons (`scripts/make-icons.mjs`), a service worker (network-first page, cache-first assets), standalone display
+- [x] Haptics (`navigator.vibrate`, with a setting), count-up numbers, press states
+- [x] Omen feed lives in the content area under the scene, never under the thumb; it clears when you open the Ritual tab
+- Desktop (≥900px): the Ritual panel is a permanent left column under a wide Chant button; tabs sit on the right.
 
 ## Phase 3 — Act I depth: "The Cult" (runs 1–5)
 

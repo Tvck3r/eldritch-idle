@@ -1,4 +1,5 @@
 import { saveGame } from '../core/save.js';
+import { settings } from '../core/settings.js';
 
 export const $ = id => document.getElementById(id);
 
@@ -12,7 +13,14 @@ export const storage = (() => {
 
 export const save = () => saveGame(storage);
 
-export const isMobile = matchMedia('(max-width: 700px)');
+// Layout breakpoints (keep in sync with style.css)
+export const isWide = matchMedia('(min-width: 900px)');   // ritual column + tabs side by side
+export const isTouch = matchMedia('(hover: none)');        // inspect with a tap, not a hover
+
+// Short buzz on Android. iOS Safari has no vibrate(), so this is a no-op there.
+export function haptic(pattern = 8) {
+  if (settings.haptics && navigator.vibrate) try { navigator.vibrate(pattern); } catch { /* blocked */ }
+}
 
 // Little helpers for tooltip/guide HTML
 export const pctOf = (part, total) => total > 0 ? `${(part / total * 100).toFixed(1)}%` : '—';

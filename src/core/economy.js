@@ -21,7 +21,7 @@ export function madnessMult() { return 1 + (1 - state.sanity / 100) * MADNESS_MA
 
 export function modifiers() {
   const all = favorMult() * madnessMult();
-  const m = { click: all, clickWpsPct: 0, all, gen: Object.fromEntries(GENERATORS.map(g => [g.id, 1])) };
+  const m = { click: all, clickWpsPct: 0, all, hold: false, gen: Object.fromEntries(GENERATORS.map(g => [g.id, 1])) };
   for (const u of UPGRADES) if (state.upgrades.includes(u.id)) u.apply(m);
   for (const p of PACTS) if (p.apply && hasPact(p.id)) p.apply(m);
   return m;
@@ -38,6 +38,8 @@ export function wps(m = modifiers()) {
 export function clickValue(m = modifiers()) {
   return m.click + wps(m) * m.clickWpsPct;
 }
+
+export const canHoldChant = () => modifiers().hold;
 
 // ---------- costs ----------
 

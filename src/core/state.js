@@ -18,12 +18,13 @@ export function freshState(now = Date.now()) {
     stats: { chants: 0, madnessEvents: 0, minSanity: 100 },
     cosmetics: { unlocked: [], equipped: { robe: 'plain', mask: 'none', relic: 'none', familiar: 'none' }, unseen: false },
     seenIntro: false,
+    hints: [],         // one-time teaching hints already shown
     lastTick: now,
   };
 }
 
 // Keys that survive a summoning
-export const PERSIST = ['lifetimeEarned', 'omensSeen', 'pacts', 'buyMode', 'stats', 'cosmetics', 'seenIntro', 'favor', 'summonings'];
+export const PERSIST = ['lifetimeEarned', 'omensSeen', 'pacts', 'buyMode', 'stats', 'cosmetics', 'seenIntro', 'favor', 'summonings', 'hints'];
 export const pick = (o, keys) => Object.fromEntries(keys.map(k => [k, o[k]]));
 
 // The one saved object. Importers see reassignments (ES live binding),

@@ -15,6 +15,8 @@ export const GENERATORS = [
 export const UPGRADES = [
   { id: 'syllables', name: 'Guttural Syllables', desc: 'Chanting is twice as effective.', cost: 100,
     unlock: s => s.totalEarned >= 50, apply: m => { m.click *= 2; } },
+  { id: 'ceaseless', name: 'Ceaseless Chant', desc: 'Hold Chant to keep chanting, 8 times a second.', cost: 500,
+    unlock: s => s.totalEarned >= 250, apply: m => { m.hold = true; } },
   { id: 'robes', name: 'Black Robes', desc: 'Acolytes x2.', cost: 200,
     unlock: s => s.owned.acolyte >= 5, apply: m => { m.gen.acolyte *= 2; } },
   { id: 'tithe', name: 'Tithe of Blood', desc: 'Cultists x2.', cost: 1500,

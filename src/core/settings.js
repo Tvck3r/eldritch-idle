@@ -7,6 +7,7 @@ export const settings = {
   reducedMotion: false,   // no flash, shake or glitch; calmer CSS animation
   notation: 'suffix',     // 'suffix' (1.23M) or 'scientific' (1.23e6)
   omenFeed: true,         // mobile: omens drift in over the game
+  haptics: true,          // vibrate on chant/buy (Android; iOS ignores it)
 };
 
 export function loadSettings(storage, defaults = {}) {

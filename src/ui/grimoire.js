@@ -18,7 +18,8 @@ const GUIDE = [
     <p><b>Chant</b> to earn <b>whispers</b>, the currency of devotion. Spend whispers on
     <b>Followers</b>, who whisper for you even while you're away.</p>
     <p>Earn <b>${fmt(VEIL_GOAL)}</b> whispers in a single run to tear the veil — then call It through.</p>
-    <p class="hint">Hover over any number (or tap it on mobile) to see what it means and where it comes from.</p>` },
+    <p class="hint">Hover over any number (on a phone, tap it) to see what it means and where it comes from.
+    In a list, tap the name to inspect it and the price to buy it.</p>` },
 
   { id: 'followers', title: 'Followers', body: () => `
     <p>Each follower produces whispers every second. Each one you buy makes the next of that kind
@@ -60,7 +61,7 @@ const GUIDE = [
     ${dl(PACTS.map(p => [p.name, `${p.desc} (${p.cost})`]))}` },
 
   { id: 'vessel', title: 'Your Vessel', body: () => `
-    <p>The figure at the front of the circle is you. Open <b>Vessel</b> at the top to dress it.</p>
+    <p>The figure at the front of the circle is you. Open the <b>Vessel</b> tab to dress it.</p>
     <p>New robes, masks, relics and familiars unlock as you reach milestones. Locked ones hint at how to earn them.</p>
     <p>Purely cosmetic. Purely necessary.</p>` },
 ];

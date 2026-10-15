@@ -13,3 +13,4 @@ export const STEADY_AMOUNT = 25;
 
 export const AUTO_BUY_INTERVAL = 0.5;   // seconds between purchases with The Faithful Multiply
 export const CATCH_UP_THRESHOLD = 5;    // gaps longer than this (seconds) count as time away
+export const HOLD_CHANT_RATE = 8;       // chants per second while holding Chant (Ceaseless Chant rite)

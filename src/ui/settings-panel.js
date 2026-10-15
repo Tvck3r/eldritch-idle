@@ -23,6 +23,7 @@ export function openSettings() {
       <h3>Display</h3>
       ${toggle('reducedMotion', 'Reduce motion', 'No flashes, screen shake or glitching.')}
       ${toggle('omenFeed', 'Omen feed', 'On phones, omens drift in over the game.')}
+      ${toggle('haptics', 'Vibration', 'A small buzz when you chant or buy (Android).')}
       <label class="setting">
         <select data-setting="notation">
           <option value="suffix" ${settings.notation === 'suffix' ? 'selected' : ''}>1.23M</option>
