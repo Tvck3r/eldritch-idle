@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Summoning</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav id="nav">
+      <button id="open-guide" class="small">Grimoire</button>
+      <button id="open-vessel" class="small">Vessel</button>
+    </nav>
+    <h1>The Summoning</h1>
+    <div id="veil" data-tip="veil">
+      <div id="veil-bar"><div id="veil-fill"></div></div>
+      <div id="veil-label"></div>
+    </div>
+  </header>
+
+  <div id="scene-wrap"><canvas id="scene"></canvas></div>
+
+  <main>
+    <section id="left">
+      <div id="resource">
+        <div id="whispers" data-tip="whispers">0</div>
+        <div class="sub">whispers</div>
+        <div id="wps" class="sub" data-tip="wps">0 / sec</div>
+        <div id="favor" class="sub" data-tip="favor"></div>
+      </div>
+      <button id="chant">Chant</button>
+      <div id="sanity" data-tip="sanity">
+        <div id="sanity-bar"><div id="sanity-fill"></div></div>
+        <div id="sanity-row"><span id="sanity-label" class="sub"></span><button id="steady" class="small">Steady Mind</button></div>
+      </div>
+      <button id="summon"></button>
+      <div id="log"></div>
+    </section>
+
+    <section id="right">
+      <h2>Followers
+        <span id="buy-mode"><button class="small" data-buy="1">×1</button><button class="small" data-buy="10">×10</button><button class="small" data-buy="max">Max</button></span>
+      </h2>
+      <div id="generators"></div>
+      <h2>Rites</h2>
+      <div id="upgrades"></div>
+      <div id="pacts-section">
+        <h2>Pacts <span class="sub">— spent Favor stops empowering you</span></h2>
+        <div id="pacts"></div>
+      </div>
+      <div id="footer-buttons">
+        <button id="save-btn" class="small">Save</button>
+        <button id="reset-btn" class="small danger">Wipe Memory</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="intro" hidden>
+    <div class="intro-inner">
+      <div class="eyebrow">An incremental descent</div>
+      <h1>The Summoning</h1>
+      <p class="tagline">Something sleeps beneath the world. You will wake it.</p>
+      <ol>
+        <li><b>Chant</b> to gather whispers.</li>
+        <li><b>Recruit followers</b> who whisper for you, even while you sleep.</li>
+        <li><b>Thin the veil</b> &mdash; and call It through.</li>
+      </ol>
+      <button id="intro-begin">Begin the Ritual</button>
+      <button id="intro-guide" class="small">Read the Grimoire first</button>
+    </div>
+  </div>
+
+  <div id="modal" hidden>
+    <div class="modal-card">
+      <button id="modal-close" class="small" aria-label="Close">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+  <script src="vessel.js"></script>
+  <script src="scene.js"></script>
+  <script src="ui.js"></script>
+  <script src="main.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
